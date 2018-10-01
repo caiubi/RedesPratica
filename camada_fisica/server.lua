@@ -57,26 +57,27 @@ serverSocket = assert(socket.bind(host, port))
 ip, openedPort   = serverSocket:getsockname()
 assert(ip, openedPort)
 
-print("Arguardando conexões em " .. ip .. ":" .. openedPort .. "...")
-clientSocket = assert(serverSocket:accept())
-print("Conectado! Aguardando informações...")
+while true do
+	print("Arguardando conexões em " .. ip .. ":" .. openedPort .. "...")
+	clientSocket = assert(serverSocket:accept())
+	print("Conectado! Aguardando informações...")
 
-filePath = receive_until_new_line(clientSocket)
-print("Arquivo requisitado " .. filePath)
+	filePath = receive_until_new_line(clientSocket)
+	print("Arquivo requisitado " .. filePath)
 
-if file_exists(filePath) then
-	assert(clientSocket:send("Y\n"))
+	if file_exists(filePath) then
+		assert(clientSocket:send("Y\n"))
 
-	local fileContent = read_file(filePath, defaultBlockSize)
-	print("Enviando arquivo... ")
+		local fileContent = read_file(filePath, defaultBlockSize)
+		print("Enviando arquivo... ")
 
-	for k,packet in pairs(fileContent) do
-		assert(clientSocket:send(packet))
+		for k,packet in pairs(fileContent) do
+			assert(clientSocket:send(packet))
+		end
+		print("Arquivo enviado com sucesso!")
+	else
+		print("Arquivo nao existe")
+		assert(clientSocket:send("N\n"))
 	end
-	print("Arquivo enviado com sucesso!")
-else
-	print("Arquivo nao existe")
-	assert(clientSocket:send("N\n"))
+	clientSocket:close()
 end
-
-clientSocket:close()

@@ -49,6 +49,7 @@ function readHTTPRequest($clientSock){
 
 
 function transferRemoteFile($filePath){
+    echo exec("lua ../camada_fisica/client.lua ".$filePath." ".$filePath);
 /*
         TODO: Fazer transferencia do arquivo via lua
 */

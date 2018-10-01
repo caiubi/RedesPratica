@@ -9,6 +9,7 @@ host = "localhost"
 port = 9876
 
 filePath = arg[1]
+fileDestination = arg[2]
 blockSize = 100
 
 local function receive_until_new_line(clientSocket)
@@ -40,7 +41,7 @@ print("Recebendo arquivo " .. filePath);
 fileExists = receive_until_new_line(clientSocket)
 
 if(fileExists == "Y") then
-    file = io.open("recebido.txt", "wb")
+    file = io.open(fileDestination, "wb")
     while not e do
         packet, e = clientSocket:receive(1)
         if not e then
