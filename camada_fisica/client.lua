@@ -11,6 +11,20 @@ port = 9876
 filePath = arg[1]
 blockSize = 100
 
+local function receive_until_new_line(clientSocket)
+    local data = "";
+    local flag = false
+    while not flag do
+        packet, e = clientSocket:receive(1)
+        if not (packet == "\n") then
+            data = data .. packet
+        else
+          flag = true
+        end
+    end
+    return data
+end 
+
 
 print("Se conectando ao host '" ..host.. "' e porta " ..port.. "...")
 
@@ -22,17 +36,21 @@ assert(clientSocket:send(filePath .. "\n"))
 
 print("Recebendo arquivo " .. filePath);
 
-file = io.open("recebido.txt", "wb")
 
-while not e do
-    packet, e = clientSocket:receive(1)
-    if not e then
-        file:write(packet)
+fileExists = receive_until_new_line(clientSocket)
+
+if(fileExists == "Y") then
+    file = io.open("recebido.txt", "wb")
+    while not e do
+        packet, e = clientSocket:receive(1)
+        if not e then
+            file:write(packet)
+        end
     end
+    print("Arquivo recebido com sucesso!")
+    file:close()
+else
+    print("Arquivo nao existe!")
 end
 
-
-
-print("Arquivo recebido com sucesso!")
-file:close()
 clientSocket:close()

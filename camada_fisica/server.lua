@@ -46,6 +46,12 @@ local function receive_until_new_line(clientSocket)
 	return data
 end	
 
+function file_exists(name)
+   local f=io.open(name,"r")
+   if f~=nil then io.close(f) return true else return false end
+end
+
+
 print("Iniciando host '" ..host.. "' na porta " ..port.. "...")
 serverSocket = assert(socket.bind(host, port))
 ip, openedPort   = serverSocket:getsockname()
@@ -58,13 +64,19 @@ print("Conectado! Aguardando informações...")
 filePath = receive_until_new_line(clientSocket)
 print("Arquivo requisitado " .. filePath)
 
-local fileContent = read_file(filePath, defaultBlockSize)
-print("Enviando arquivo... ")
+if file_exists(filePath) then
+	assert(clientSocket:send("Y\n"))
 
-for k,packet in pairs(fileContent) do
-	assert(clientSocket:send(packet))
+	local fileContent = read_file(filePath, defaultBlockSize)
+	print("Enviando arquivo... ")
+
+	for k,packet in pairs(fileContent) do
+		assert(clientSocket:send(packet))
+	end
+	print("Arquivo enviado com sucesso!")
+else
+	print("Arquivo nao existe")
+	assert(clientSocket:send("N\n"))
 end
 
-
 clientSocket:close()
-print("Arquivo recebido com sucesso!")
