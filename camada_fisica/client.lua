@@ -9,41 +9,30 @@ host = "localhost"
 port = 9876
 
 filePath = arg[1]
-defaultBlockSize = 100
+blockSize = 100
 
-local open = io.open
-
-function fsize (file)
-        local current = file:seek()      
-        local size = file:seek("end")    
-        file:seek("set", current)
-        return size
-end
-
-local function read_file(path, blockSize)
-    local file = open(path, "rb") 
-    if not file then return nil end
-    local fileSize = fsize(file)
-    lines = {}
-	for i=0,fileSize,blockSize do 
-	    block = file:read(blockSize)
-		lines[#lines + 1] = block
-	end
-    file:close()
-	return lines
-end
-
-local fileContent = read_file(filePath, defaultBlockSize)
 
 print("Se conectando ao host '" ..host.. "' e porta " ..port.. "...")
 
 clientSocket = assert(socket.connect(host, port))
 
-print("Conectado! Preparando para enviar arquivo...")
+print("Conectado! Preparando para receber arquivo...")
 
-for k,packet in pairs(fileContent) do
-	assert(clientSocket:send(packet))
+assert(clientSocket:send(filePath .. "\n"))
+
+print("Recebendo arquivo " .. filePath);
+
+file = io.open("recebido.txt", "wb")
+
+while not e do
+    packet, e = clientSocket:receive(1)
+    if not e then
+        file:write(packet)
+    end
 end
 
-print("Arquivo enviado com sucesso!")
+
+
+print("Arquivo recebido com sucesso!")
+file:close()
 clientSocket:close()
