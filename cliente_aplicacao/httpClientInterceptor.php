@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 /* Allow the script to hang around waiting for connections. */
 set_time_limit(0);
 
-include 'httpServer.php';
+include '../utils/httpUtils.php';
 
 $address = '127.0.0.1';
 $port = 8080;
@@ -22,22 +22,9 @@ do {
         if($clientSock != null){
             $request = readHTTPRequest($clientSock);
 
-            $result = parseRequestFile($request);
+            $response = performRequest($request);
 
-            if($result == "/"){
-                $result = "./index.html";
-            }else{
-                $result = ".".$result;
-            }
-            echo "GET ".$result."\n";
-            $fileDesc = transferRemoteFile($result);
-
-            if($fileDesc == null){
-                httpResponseNotFound($clientSock);
-            }else{
-                httpResponseSuccess($clientSock, $fileDesc->size, $fileDesc->contents);
-            }
-
+            socket_write($clientSock, $response, strlen($response));
             socket_close($clientSock);
 
         }

@@ -48,28 +48,30 @@ function readHTTPRequest($clientSock){
 }
 
 
-function transferRemoteFile($filePath){
-    echo exec("lua ../camada_fisica/client.lua ".$filePath." ".$filePath);
-/*
-        TODO: Fazer transferencia do arquivo via lua
-*/
-    //Mock
-    if(file_exists($filePath)){
-        $file = file_get_contents($filePath);
-        $tam = strlen($file);
+function performRequest($data){
+    $requestFile = "request.txt";
+    $responseFile = "response.txt";
 
-        $fileDesc = new stdClass();
-        $fileDesc->contents = $file;
-        $fileDesc->size = $tam;
+    file_put_contents($requestFile, $data);
 
-        return $fileDesc;
+    echo exec("lua client.lua S ".$requestFile." ".$requestFile);
+
+    sleep(1);
+
+    echo exec("lua client.lua R ".$responseFile." ".$responseFile);
+
+    if(file_exists($responseFile)){        
+        $responseData = file_get_contents($responseFile);
+        unlink($requestFile);
+        unlink($responseFile);
+        return $responseData;
     }
 
     return null;  //Se arquivo não existe
 }
 
 
-function httpResponseSuccess($clientSock, $fileSize, $fileContent){
+function httpResponseSuccess($fileSize, $fileContent){
         $msg = "HTTP/1.1 200 OK\r\n";
         $msg .= "Date: Mon, 01 Oct 2018 00:19:50 GMT\r\n";
         $msg .= "Server: Apache/2.4.34 (Unix)\r\n";
@@ -83,11 +85,10 @@ function httpResponseSuccess($clientSock, $fileSize, $fileContent){
         $msg .= "Connection: Keep-Alive\r\n";
         $msg .= "Content-Type: text/html\r\n\r\n".$fileContent;
 
-        socket_write($clientSock, $msg, strlen($msg));
-
+        return $msg;
 }
 
-function httpResponseNotFound($clientSock){
+function httpResponseNotFound(){
         $msg = "HTTP/1.1 404 Not Found\r\n";
         $msg .= "Date: Mon, 01 Oct 2018 00:40:14 GMT\r\n";
         $msg .= "Server: Apache/2.4.34 (Unix)\r\n";
@@ -95,11 +96,8 @@ function httpResponseNotFound($clientSock){
         $msg .= "Keep-Alive: timeout=5, max=98\r\n";
         $msg .= "Connection: Keep-Alive\r\n";
         $msg .= "Content-Type: text/html; charset=iso-8859-1\r\n\r\n";
-
-        socket_write($clientSock, $msg, strlen($msg));
-        $msg = "NOT FOUND";
-        socket_write($clientSock, $msg, strlen($msg));
-
+        $msg .= "NOT FOUND";
+        return $msg;
 }
 
 ?>
