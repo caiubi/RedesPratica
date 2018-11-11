@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Date: Mon, 01 Oct 2018 00:19:50 GMT
+Server: Apache/2.4.34 (Unix)
+Content-Location: index.html.en
+Vary: negotiate
+TCN: choice
+Last-Modified: Mon, 11 Jun 2007 18:53:14 GMT
+Accept-Ranges: bytes
+Content-Length: 0
+Keep-Alive: timeout=5, max=99
+Connection: Keep-Alive
+Content-Type: text/html
+

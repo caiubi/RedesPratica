@@ -1,0 +1,14 @@
+filepath = 'tabel.txt'  
+with open(filepath) as fp:  
+    line = fp.readline()
+    cnt = 1
+    ips = []
+    router = []
+    while line:
+        ip = format(cnt, line.strip())
+        if (ip == "router")
+            line = fp.readline()
+            router = format(cnt, line.strip())
+        cnt += 1
+    print "router: ".router
+    print "Ips: ".ips
