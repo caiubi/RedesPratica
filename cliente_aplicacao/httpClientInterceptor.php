@@ -21,8 +21,11 @@ do {
 
         if($clientSock != null){
             $request = readHTTPRequest($clientSock);
+            echo "Recebeu request HTTP\n";
 
             $response = performRequest($request);
+
+            echo "Encaminhando request para o navegador \n";
 
             socket_write($clientSock, $response, strlen($response));
             socket_close($clientSock);

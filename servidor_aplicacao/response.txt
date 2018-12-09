@@ -1,0 +1,69 @@
+HTTP/1.1 200 OK
+Date: Mon, 01 Oct 2018 00:19:50 GMT
+Server: Apache/2.4.34 (Unix)
+Content-Location: index.html.en
+Vary: negotiate
+TCN: choice
+Last-Modified: Mon, 11 Jun 2007 18:53:14 GMT
+Accept-Ranges: bytes
+Content-Length: 1453
+Keep-Alive: timeout=5, max=99
+Connection: Keep-Alive
+Content-Type: text/html
+
+--
+-- Necessário instalação da biblioteca de socket
+-- Comando para execução: lua server.lua
+--
+
+local socket = require("socket")
+
+package.path = package.path .. ";../utils/socketUtils.lua"
+
+require "socketUtils"
+
+host = "*"
+port = 9876
+
+local defaultBlockSize = 64
+
+read_file("client.lua", defaultBlockSize)
+
+print("Iniciando host '" ..host.. "' na porta " ..port.. "...")
+serverSocket = assert(socket.bind(host, port))
+ip, openedPort   = serverSocket:getsockname()
+assert(ip, openedPort)
+
+while true do
+	print("Arguardando conexões em " .. ip .. ":" .. openedPort .. "...")
+	clientSocket = assert(serverSocket:accept())
+	print("Conectado! Aguardando informações...")
+
+	cmd = receive_until_new_line(clientSocket)
+	if(cmd == "S") then
+	    filePath = receive_until_new_line(clientSocket)
+		print("Arquivo a ser recebido " .. filePath)
+
+		print("Will receive " .. filePath .. " from client")
+		if(file_exists(filePath)) then
+			os.remove(filePath)
+		end
+		receive_file(clientSocket, filePath, filePath)
+
+		os.execute("php httpServer.php ".. filePath);
+
+	elseif(cmd == "R") then
+	    filePath = receive_until_new_line(clientSocket)
+		print("Will send " .. filePath .. " to client")
+	    if file_exists(filePath) then
+	        assert(clientSocket:send("Y\n"))
+			send_file(filePath, clientSocket, defaultBlockSize)
+        else
+	        print("Arquivo nao existe")
+	        assert(clientSocket:send("N\n"))
+	    end
+	end
+
+
+	clientSocket:close()
+end

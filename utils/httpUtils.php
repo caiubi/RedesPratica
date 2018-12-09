@@ -54,10 +54,12 @@ function performRequest($data){
 
     file_put_contents($requestFile, $data);
 
+    echo "Enviando request para o servidor \n";
     echo exec("lua client.lua S ".$requestFile." ".$requestFile);
 
     sleep(1);
 
+    echo "Recebendo resposta \n";
     echo exec("lua client.lua R ".$responseFile." ".$responseFile);
 
     if(file_exists($responseFile)){        
