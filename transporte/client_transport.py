@@ -31,6 +31,8 @@ def Main():
 		# ask the client whether he wants to continue 
 		ans = input('\nSend the data?(y/n) :') 
 		if ans == 'y': 
+			#here goes the comunication with the server
+
 			continue
 		else: 
 			break
